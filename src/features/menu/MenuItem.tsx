@@ -1,5 +1,22 @@
-function MenuItem({ pizza }) {
-   const { id, name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
+import { formatCurrency } from "../../utils/helpers";
+
+// Define the type for the pizza prop
+type Pizza = {
+   id: number;
+   name: string;
+   unitPrice: number;
+   ingredients: string[];
+   soldOut: boolean;
+   imageUrl: string;
+};
+
+type MenuItemProps = {
+   pizza: Pizza;
+};
+
+// Define the MenuItem component with typed props
+function MenuItem({ pizza }: MenuItemProps): JSX.Element {
+   const { name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
 
    return (
       <li>

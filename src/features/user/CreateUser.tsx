@@ -1,30 +1,31 @@
-import { useState } from 'react';
+import { useState, FormEvent, ChangeEvent } from "react";
 
-function CreateUser() {
-  const [username, setUsername] = useState('');
+function CreateUser(): JSX.Element {
+   const [username, setUsername] = useState<string>("");
 
-  function handleSubmit(e) {
-    e.preventDefault();
-  }
+   function handleSubmit(e: FormEvent): void {
+      e.preventDefault();
+      // Additional logic for submitting the form can be added here
+   }
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <p>👋 Welcome! Please start by telling us your name:</p>
+   return (
+      <form onSubmit={handleSubmit}>
+         <p>👋 Welcome! Please start by telling us your name:</p>
 
-      <input
-        type="text"
-        placeholder="Your full name"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
+         <input
+            type="text"
+            placeholder="Your full name"
+            value={username}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
+         />
 
-      {username !== '' && (
-        <div>
-          <button>Start ordering</button>
-        </div>
-      )}
-    </form>
-  );
+         {username !== "" && (
+            <div>
+               <button type="submit">Start ordering</button>
+            </div>
+         )}
+      </form>
+   );
 }
 
 export default CreateUser;
