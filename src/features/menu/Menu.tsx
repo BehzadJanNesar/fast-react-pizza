@@ -1,5 +1,29 @@
+import { useLoaderData } from "react-router-dom";
+import { getMenu } from "../../services/apiRestaurant";
+import MenuItem from "./MenuItem";
+
+interface MenuDataTypes {
+   id: number;
+   imageUrl: string;
+   ingredients: string[];
+   name: string;
+   soldOut: boolean;
+   unitPrice: number;
+}
+
 function Menu() {
-  return <h1>Menu</h1>;
+   const menuData = useLoaderData() as MenuDataTypes[];
+   return (
+      <ul>
+         {menuData.map((pizza) => (
+            <MenuItem pizza={pizza} key={pizza.id} />
+         ))}
+      </ul>
+   );
+}
+
+export async function loader() {
+   return await getMenu();
 }
 
 export default Menu;
