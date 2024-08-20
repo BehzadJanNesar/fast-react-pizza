@@ -99,7 +99,24 @@ function Order(): JSX.Element {
   );
 }
 
-export async function loader({ params }) {
+interface OrderLoader {
+  id: number;
+  items: {
+    pizzaId: number;
+    quantity: number;
+  }[];
+  totalPrice: number;
+}
+interface OrderParamsType {
+  params: {
+    orderId: number;
+  };
+}
+
+export async function loader({
+  params,
+}: OrderParamsType): Promise<OrderLoader> {
+  console.log(params);
   const data = await getOrder(params.orderId);
   return data;
 }

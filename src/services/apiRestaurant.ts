@@ -1,24 +1,56 @@
 const API_URL = 'https://react-fast-pizza-api.onrender.com/api';
 
-export async function getMenu() {
+interface MenuItem {
+  id: number;
+  imageUrl: string;
+  ingredients: string[];
+  name: string;
+  soldOut: boolean;
+  unitPrice: number;
+  // Add other properties based on the API response
+}
+
+interface Order {
+  id: number;
+  items: {
+    pizzaId: number;
+    quantity: number;
+  }[];
+  totalPrice: number;
+  // Add other properties based on the API response
+}
+
+interface NewOrder {
+  items: {
+    pizzaId: number;
+    quantity: number;
+  }[];
+  // Add other properties necessary for creating an order
+}
+
+interface UpdateOrder {
+  status?: string;
+  // Add other properties that can be updated
+}
+
+export async function getMenu(): Promise<MenuItem[]> {
   const res = await fetch(`${API_URL}/menu`);
 
-  // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) throw Error('Failed getting menu');
 
   const { data } = await res.json();
-  return data;
+  return data as MenuItem[];
 }
 
-export async function getOrder(id) {
+export async function getOrder(id: number): Promise<Order> {
   const res = await fetch(`${API_URL}/order/${id}`);
   if (!res.ok) throw Error(`Couldn't find order #${id}`);
 
   const { data } = await res.json();
-  return data;
+  return data as Order;
 }
 
-export async function createOrder(newOrder) {
+export async function createOrder(newOrder: NewOrder): Promise<Order> {
   try {
     const res = await fetch(`${API_URL}/order`, {
       method: 'POST',
@@ -30,13 +62,16 @@ export async function createOrder(newOrder) {
 
     if (!res.ok) throw Error();
     const { data } = await res.json();
-    return data;
+    return data as Order;
   } catch {
     throw Error('Failed creating your order');
   }
 }
 
-export async function updateOrder(id, updateObj) {
+export async function updateOrder(
+  id: number,
+  updateObj: UpdateOrder,
+): Promise<void> {
   try {
     const res = await fetch(`${API_URL}/order/${id}`, {
       method: 'PATCH',
@@ -47,7 +82,6 @@ export async function updateOrder(id, updateObj) {
     });
 
     if (!res.ok) throw Error();
-    // We don't need the data, so we don't return anything
   } catch (err) {
     throw Error('Failed updating your order');
   }

@@ -4,6 +4,7 @@ interface ButtonProps {
   children: React.ReactNode;
   disabled?: boolean;
   to?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   type: keyof StylesType; // restricts type to 'primary' or 'small'
 }
 
@@ -13,7 +14,7 @@ interface StylesType {
   secondary: string;
 }
 
-function Button({ children, disabled, to, type }: ButtonProps) {
+function Button({ children, disabled, to, type, onClick }: ButtonProps) {
   const base: string =
     'inline-block text-sm rounded-full bg-yellow-400 font-semibold uppercase tracking-wide text-stone-800 transition-colors duration-200 hover:bg-yellow-300 focus:bg-yellow-300 focus:outline-none focus:ring focus:ring-yellow-300 focus:ring-offset-2 disabled:cursor-not-allowed';
 
@@ -32,7 +33,7 @@ function Button({ children, disabled, to, type }: ButtonProps) {
     );
 
   return (
-    <button disabled={disabled} className={styles[type]}>
+    <button onClick={onClick} disabled={disabled} className={styles[type]}>
       {children}
     </button>
   );

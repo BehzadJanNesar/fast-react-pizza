@@ -22,7 +22,7 @@ function Menu() {
   );
 }
 
-export async function loader() {
+export async function loader(): Promise<MenuDataTypes[]> {
   return await getMenu();
 }
 
