@@ -1,7 +1,10 @@
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from '../../ui/Button';
 import { formatCurrency } from '../../utils/helpers';
 import { addItem } from '../cart/CartSlice';
+import { getCurrentQtyById } from '../../services/Selectors/Selectors';
+import DeleteItem from '../cart/DeleteItem';
+import UpdateItemQty from '../cart/UpdateItemQty';
 
 // Define the type for the pizza prop
 type Pizza = {
@@ -21,6 +24,8 @@ type MenuItemProps = {
 function MenuItem({ pizza }: MenuItemProps): JSX.Element {
   const { id, name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
   const dispatch = useDispatch();
+  const currentQty = useSelector(getCurrentQtyById(id));
+  const isInCart = currentQty > 0;
 
   function handleDispatch() {
     const newItem = {
@@ -54,11 +59,19 @@ function MenuItem({ pizza }: MenuItemProps): JSX.Element {
               Sold out
             </p>
           )}
-          {!soldOut ? (
+
+          {isInCart && (
+            <div className="flex items-center gap-3 sm:gap-20">
+              <UpdateItemQty currentQty={currentQty} pizzaId={id} />
+              <DeleteItem pizzaId={id} />
+            </div>
+          )}
+          {!soldOut && !isInCart && (
             <Button onClick={handleDispatch} type="small">
               add to cart
             </Button>
-          ) : (
+          )}
+          {soldOut && (
             <p className="cursor-default rounded-lg bg-stone-200 p-1 text-sm font-medium italic text-red-700">
               doesn't exist!
             </p>

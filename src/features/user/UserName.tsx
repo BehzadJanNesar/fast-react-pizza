@@ -1,8 +1,8 @@
 import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
+import { selectCartOverview } from '../../services/Selectors/Selectors';
 
 function UserName() {
-  const username = useSelector((state: RootState) => state.user.username);
+  const { username } = useSelector(selectCartOverview);
 
   if (!username) return null;
 

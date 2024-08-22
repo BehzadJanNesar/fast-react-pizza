@@ -1,6 +1,7 @@
 import { useLoaderData } from 'react-router-dom';
 import { getMenu } from '../../services/apiRestaurant';
 import MenuItem from './MenuItem';
+import { useMemo } from 'react';
 
 interface MenuDataTypes {
   id: number;
@@ -13,13 +14,11 @@ interface MenuDataTypes {
 
 function Menu() {
   const menuData = useLoaderData() as MenuDataTypes[];
-  return (
-    <ul className="divide-y divide-stone-300 px-2">
-      {menuData.map((pizza) => (
-        <MenuItem pizza={pizza} key={pizza.id} />
-      ))}
-    </ul>
+  const memo = useMemo(
+    () => menuData.map((pizza) => <MenuItem pizza={pizza} key={pizza.id} />),
+    [menuData.length],
   );
+  return <ul className="divide-y divide-stone-300 px-2">{memo}</ul>;
 }
 
 export async function loader(): Promise<MenuDataTypes[]> {
