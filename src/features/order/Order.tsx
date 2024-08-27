@@ -35,18 +35,25 @@ type OrderType = {
 
 function Order(): JSX.Element {
   const order = useLoaderData() as OrderType;
+  // const [totalPriceInItem, setTotalPriceInItem] = useState([]);
   // Extracting data from the order object
   const {
     id,
     status = 'Processing',
     priority,
     priorityPrice,
-    orderPrice,
+    // orderPrice,
     estimatedDelivery,
     cart,
   } = order;
 
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
+
+  console.log(cart);
+
+  const totalPriceInItem: number = cart
+    .map((cart) => cart.totalPrice)
+    .reduce((curr, item) => item + curr, 0);
 
   return (
     <div className="space-y-8 px-4 py-6">
@@ -84,7 +91,7 @@ function Order(): JSX.Element {
 
       <div className="space-y-2 bg-stone-200 px-6 py-5">
         <p className="text-sm font-medium text-stone-600">
-          Price pizza: {formatCurrency(orderPrice)}
+          Price pizza: {formatCurrency(totalPriceInItem)}
         </p>
         {priority && (
           <p className="text-sm font-medium text-stone-600">
@@ -92,7 +99,7 @@ function Order(): JSX.Element {
           </p>
         )}
         <p className="font-bold">
-          To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
+          To pay on delivery: {formatCurrency(totalPriceInItem + priorityPrice)}
         </p>
       </div>
     </div>
@@ -116,7 +123,6 @@ interface OrderParamsType {
 export async function loader({
   params,
 }: OrderParamsType): Promise<OrderLoader> {
-  console.log(params);
   const data = await getOrder(params.orderId);
   return data;
 }

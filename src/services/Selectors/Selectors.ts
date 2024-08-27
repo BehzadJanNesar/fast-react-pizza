@@ -4,7 +4,7 @@ import { RootState } from '../../store';
 
 const getTotalCartPrice = (state: RootState): number =>
   state.cart.cart.reduce(
-    (accumulator, currentItem) => accumulator + currentItem.totalPrice,
+    (accumulator, currentItem) => accumulator + currentItem.unitPrice,
     0,
   );
 

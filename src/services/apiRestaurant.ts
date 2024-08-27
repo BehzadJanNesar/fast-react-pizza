@@ -21,10 +21,10 @@ interface Order {
 }
 
 interface NewOrder {
-  items: {
-    pizzaId: number;
-    quantity: number;
-  }[];
+  customer: string;
+  phone: string;
+  address: string;
+  priority: boolean;
   // Add other properties necessary for creating an order
 }
 
