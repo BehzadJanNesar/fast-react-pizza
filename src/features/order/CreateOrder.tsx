@@ -1,18 +1,19 @@
-import { useState, ChangeEvent } from 'react';
+import { useState } from 'react';
 import {
   Form,
   // redirect,
   useNavigation,
   ActionFunctionArgs,
   useActionData,
+  redirect,
 } from 'react-router-dom';
-// import { createOrder } from '../../services/apiRestaurant';
+import { createOrder } from '../../services/apiRestaurant';
 import Button from '../../ui/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCartOverview } from '../../services/Selectors/Selectors';
 import EmptyCart from '../cart/EmptyCart';
-import { AppDispatch, RootState } from '../../store';
-// import { clearCart } from '../cart/CartSlice';
+import store, { AppDispatch, RootState } from '../../store';
+import { clearCart } from '../cart/CartSlice';
 import { formatCurrency } from '../../utils/helpers';
 import { fetchAddress } from '../user/userSlice';
 
@@ -68,10 +69,7 @@ function CreateOrder(): JSX.Element {
   const totalPrice = totalItemPrice + priorityPrice;
 
   if (!cartItems.length) return <EmptyCart />;
-  // Handle changes to the checkbox
-  const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setWithPriority(event.target.checked);
-  };
+
   return (
     <div className="px-4 py-6">
       <h2 className="mb-8 text-xl font-semibold">Ready to order? Let's go!</h2>
@@ -154,7 +152,7 @@ function CreateOrder(): JSX.Element {
             name="priority"
             id="priority"
             checked={withPriority}
-            onChange={handleCheckboxChange}
+            onChange={() => setWithPriority(!withPriority)}
           />
           <label className="font-medium" htmlFor="priority">
             Want to give your order priority?
@@ -189,15 +187,13 @@ export async function action({ request }: ActionFunctionArgs) {
     string,
     string
   >;
+  console.log(data);
 
   const order: OrderData = {
-    customer: data.customer,
-    phone: data.phone,
-    address: data.address,
+    ...data,
     cart: JSON.parse(data.cart),
     priority: data.priority === 'true',
   };
-  console.log(order);
 
   const errors: Errors = {};
   if (!isValidPhone(order.phone))
@@ -205,12 +201,11 @@ export async function action({ request }: ActionFunctionArgs) {
       'Please provide a correct phone number; we might need it to contact you.';
   if (Object.keys(errors).length > 0) return errors;
 
-  // const newOrder = await createOrder(order);
+  const newOrder = await createOrder(order);
 
-  // store.dispatch(clearCart());
+  store.dispatch(clearCart());
 
-  // return redirect(`/order/${newOrder.id}`);
-  return null;
+  return redirect(`/order/${newOrder.id}`);
 }
 
 export default CreateOrder;

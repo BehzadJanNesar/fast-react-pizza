@@ -1,6 +1,6 @@
 // Test ID: IIDSAT
 
-import { useLoaderData } from 'react-router-dom';
+import { useFetcher, useLoaderData } from 'react-router-dom';
 import { getOrder } from '../../services/apiRestaurant';
 import {
   calcMinutesLeft,
@@ -8,6 +8,7 @@ import {
   formatDate,
 } from '../../utils/helpers';
 import OrderItem from './OrderItem';
+import { useEffect } from 'react';
 
 // Define a type for the cart items
 type CartItem = {
@@ -30,12 +31,29 @@ type OrderType = {
   position: string;
   orderPrice: number;
   priorityPrice: number;
-  status?: string; // Assuming status is optional as it's not included in the sample order object
+  status?: string;
 };
+interface DataEl {
+  id: number;
+  name: string;
+  unitPrice: number;
+  imageUrl: string;
+  ingredients: string[];
+  soldOut: boolean;
+}
 
 function Order(): JSX.Element {
   const order = useLoaderData() as OrderType;
-  // const [totalPriceInItem, setTotalPriceInItem] = useState([]);
+  console.log(order);
+
+  const fetcher = useFetcher();
+
+  useEffect(
+    function () {
+      if (!fetcher.data && fetcher.state === 'idle') fetcher.load('/menu');
+    },
+    [fetcher],
+  );
   // Extracting data from the order object
   const {
     id,
@@ -48,8 +66,6 @@ function Order(): JSX.Element {
   } = order;
 
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
-
-  console.log(cart);
 
   const totalPriceInItem: number = cart
     .map((cart) => cart.totalPrice)
@@ -85,7 +101,15 @@ function Order(): JSX.Element {
 
       <ul className="divide-y divide-stone-200 border-b border-t">
         {cart.map((item, index) => (
-          <OrderItem item={item} key={index} />
+          <OrderItem
+            item={item}
+            key={index}
+            isLoadingIngredients={fetcher.state === 'loading'}
+            ingredients={
+              fetcher.data?.find((el: DataEl) => el.id === item.pizzaId)
+                .ingredients ?? []
+            }
+          />
         ))}
       </ul>
 

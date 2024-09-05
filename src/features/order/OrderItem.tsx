@@ -10,21 +10,28 @@ type CartItem = {
 // Define the type for the component props
 type OrderItemProps = {
   item: CartItem;
-  // isLoadingIngredients: boolean;
-  // ingredients: string[]; // Assuming ingredients is an array of strings
+  isLoadingIngredients: boolean;
+  ingredients: string[];
 };
 
-function OrderItem({ item }: OrderItemProps): JSX.Element {
+function OrderItem({
+  item,
+  ingredients,
+  isLoadingIngredients,
+}: OrderItemProps): JSX.Element {
   const { quantity, name, totalPrice } = item;
 
   return (
-    <li className="py-3">
+    <li className="space-y-1 py-3">
       <div className="flex items-center justify-between gap-4 text-sm">
         <p>
           <span className="font-bold">{quantity}&times;</span> {name}
         </p>
         <p className="font-bold">{formatCurrency(totalPrice)}</p>
       </div>
+      <p className="text-sm italic text-stone-500">
+        {isLoadingIngredients ? 'loading...' : ingredients.join(' , ')}
+      </p>
     </li>
   );
 }
