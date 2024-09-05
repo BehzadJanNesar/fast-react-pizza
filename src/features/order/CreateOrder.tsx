@@ -1,19 +1,20 @@
 import { useState, ChangeEvent } from 'react';
 import {
   Form,
-  redirect,
+  // redirect,
   useNavigation,
   ActionFunctionArgs,
   useActionData,
 } from 'react-router-dom';
-import { createOrder } from '../../services/apiRestaurant';
+// import { createOrder } from '../../services/apiRestaurant';
 import Button from '../../ui/Button';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectCartOverview } from '../../services/Selectors/Selectors';
 import EmptyCart from '../cart/EmptyCart';
-import store from '../../store';
-import { clearCart } from '../cart/CartSlice';
+import { AppDispatch, RootState } from '../../store';
+// import { clearCart } from '../cart/CartSlice';
 import { formatCurrency } from '../../utils/helpers';
+import { fetchAddress } from '../user/userSlice';
 
 // Regular expression to validate phone numbers
 const isValidPhone = (str: string): boolean =>
@@ -51,6 +52,14 @@ interface FormErrors {
 function CreateOrder(): JSX.Element {
   const { username, cartItems, totalItemPrice } =
     useSelector(selectCartOverview);
+  const {
+    address,
+    status: addressStatus,
+    position,
+    error: errorAddress,
+  } = useSelector((state: RootState) => state.user);
+  const isLoadingAddress = addressStatus === 'loading';
+  const dispatch = useDispatch<AppDispatch>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
   const [withPriority, setWithPriority] = useState<boolean>(false);
@@ -63,7 +72,6 @@ function CreateOrder(): JSX.Element {
   const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
     setWithPriority(event.target.checked);
   };
-
   return (
     <div className="px-4 py-6">
       <h2 className="mb-8 text-xl font-semibold">Ready to order? Let's go!</h2>
@@ -107,14 +115,35 @@ function CreateOrder(): JSX.Element {
           <label className="sm:basis-40" htmlFor="address">
             Address
           </label>
-          <div className="grow">
+          <div className="relative grow">
             <input
+              disabled={isLoadingAddress}
+              defaultValue={address}
               className="input w-full"
               type="text"
               name="address"
               id="address"
               required
             />
+            {!position?.latitude && !position?.longitude && (
+              <span className="absolute right-[3px] top-[3px] md:right-[5px] md:top-[5px]">
+                <Button
+                  disabled={isLoadingAddress}
+                  type="small"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dispatch(fetchAddress());
+                  }}
+                >
+                  {isLoadingAddress ? 'loading...' : 'Get Position'}
+                </Button>
+              </span>
+            )}
+            {addressStatus === 'error' && (
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {errorAddress}
+              </p>
+            )}
           </div>
         </div>
 
@@ -134,7 +163,16 @@ function CreateOrder(): JSX.Element {
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cartItems)} />
-          <Button type="primary" disabled={isSubmitting}>
+          <input
+            type="hidden"
+            name="position"
+            value={
+              position?.latitude && position?.longitude
+                ? `${position.latitude},${position.longitude}`
+                : ''
+            }
+          />
+          <Button type="primary" disabled={isSubmitting || isLoadingAddress}>
             {isSubmitting
               ? 'Placing order....'
               : `Order now from ${formatCurrency(totalPrice)}`}
@@ -159,6 +197,7 @@ export async function action({ request }: ActionFunctionArgs) {
     cart: JSON.parse(data.cart),
     priority: data.priority === 'true',
   };
+  console.log(order);
 
   const errors: Errors = {};
   if (!isValidPhone(order.phone))
@@ -166,11 +205,12 @@ export async function action({ request }: ActionFunctionArgs) {
       'Please provide a correct phone number; we might need it to contact you.';
   if (Object.keys(errors).length > 0) return errors;
 
-  const newOrder = await createOrder(order);
+  // const newOrder = await createOrder(order);
 
-  store.dispatch(clearCart());
+  // store.dispatch(clearCart());
 
-  return redirect(`/order/${newOrder.id}`);
+  // return redirect(`/order/${newOrder.id}`);
+  return null;
 }
 
 export default CreateOrder;
